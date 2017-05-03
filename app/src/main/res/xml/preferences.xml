@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <EditTextPreference
+        android:defaultValue="1.0"
+        android:selectAllOnFocus="true"
+        android:singleLine="true"
+        android:title="Throttle Range"
+        android:key="throttle_range"
+        android:inputType="numberDecimal"/>
+    <EditTextPreference
+        android:defaultValue="*"
+        android:selectAllOnFocus="true"
+        android:singleLine="true"
+        android:title="MRPC Device Path"
+        android:key="mrpc_path"
+        android:summary="Either * for broadcast or a path like /car1" />
+</PreferenceScreen>
