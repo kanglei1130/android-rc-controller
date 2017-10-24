@@ -67,17 +67,17 @@ public class MainActivity extends AppCompatActivity {
 
 
     private JoystickMovedListener _listenerLeft = new JoystickMovedListener() {
-        float i = (float) 0.0;
+        float lastTilt = (float) 0.0;
 
         @Override
         // send only when mapped changes
         public void OnMoved(int pan, int tilt) {
-            float mapped = ((float)tilt*-1*throttle_range + 100)/200;
-            if(mapped!=i) {
-                sendThrottle(mapped);
+            float mappedTilt = ((float)tilt*-1*throttle_range + 100)/200;
+            if(mappedTilt!=lastTilt) {
+                sendThrottle(mappedTilt);
                 Log.d(TAG, "sendThrottleOnMove");
             }
-            i = mapped;
+            lastTilt = mappedTilt;
         }
 
         @Override
@@ -93,16 +93,16 @@ public class MainActivity extends AppCompatActivity {
     };
 
     private JoystickMovedListener _listenerRight = new JoystickMovedListener() {
-        float i = (float) 0.0;
+        float lastPan = (float) 0.0;
 
         @Override
         //send only when mapped changes
         public void OnMoved(int pan, int tilt) {
-            float mapped = ((float)pan + 100)/200;
-            if(mapped!=i) {
-                sendSteering(mapped);
+            float mappedPan = ((float)pan + 100)/200;
+            if(mappedPan!=lastPan) {
+                sendSteering(mappedPan);
             }
-            i = mapped;
+            lastPan = mappedPan;
         }
 
         @Override
@@ -142,12 +142,17 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private float lastSteering = 0.5f;
+    private float lastThrottle = 0.5f;
+
     //send typed gson controllor order
     private void sendThrottle(float val) {
 
         Gson gson = new Gson();
         Log.d(TAG,"sendThrottle" + gson.toJson(carControl));
-        carControl.throttle_=val;
+        carControl.throttle_ = val;
+        carControl.steering_ = this.lastSteering;
+        this.lastThrottle = val;
         String json = gson.toJson(carControl);
 
         if(mUDP != null && mUDPConnection != null) {
@@ -157,12 +162,15 @@ public class MainActivity extends AppCompatActivity {
     private void sendSteering(float val) {
         Gson gson = new Gson();
         Log.d(TAG,"sendSteering" + gson.toJson(carControl));
-        carControl.steering_=val;
+        carControl.steering_ = val;
+        carControl.throttle_ = this.lastThrottle;
+        this.lastSteering = val;
         String json = gson.toJson(carControl);
 
         Log.d(TAG,json);
         if(mUDP != null && mUDPConnection != null) {
-            mUDPConnection.sendData(json);        }
+            mUDPConnection.sendData(json);
+        }
     }
 
 }
