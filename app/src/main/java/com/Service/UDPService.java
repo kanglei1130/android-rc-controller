@@ -7,6 +7,7 @@ import android.os.IBinder;
 import android.util.Log;
 
 import java.io.IOException;
+import java.io.InterruptedIOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
@@ -22,9 +23,9 @@ public class UDPService extends Service implements Runnable {
     private AtomicBoolean UDPThreadRunning = new AtomicBoolean(false);
     public GetUSBIP getUSBIP = new GetUSBIP();
 
-    public int remotePort = 5000;
+    private final int remotePort = 5000;
     //automticly find USB tethering ip
-    public String remoteIPName = getUSBIP.getUSBThetheredIP();
+    private String remoteIPName = getUSBIP.getUSBThetheredIP();
     public String control = "";
 
     public class UDPBinder extends Binder {
@@ -65,6 +66,7 @@ public class UDPService extends Service implements Runnable {
         Log.d(TAG, "start sending thread");
         while (UDPThreadRunning.get()) {
             try {
+                Thread.sleep(100);
                 InetAddress serverAddr = InetAddress.getByName(remoteIPName);
                 DatagramSocket udpSocket = new DatagramSocket();
                 byte[] buf = control.getBytes();
@@ -75,6 +77,8 @@ public class UDPService extends Service implements Runnable {
                 Log.e("Udp:", "Socket Error:", e);
             } catch (IOException e) {
                 Log.e("Udp Send:", "IO Error:", e);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
         }
     }
